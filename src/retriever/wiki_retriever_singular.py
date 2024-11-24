@@ -344,7 +344,7 @@ def main_runner(topics_terms_batch, run_specific_topic=False, **kwargs):
                     'visited_page_set': list(visited_pages)
                 }
 
-                checkpoint_results(all_results, visited_pages_list, f'checkpoint_{topic}_results.json')
+                checkpoint_results(res_dict, visited_pages_list, f'checkpoint_{topic}_results.json')
                 all_results.append(res_dict)
                 visited_pages_list.append(visited_pages_dict)
 
@@ -385,7 +385,7 @@ def main_runner(topics_terms_batch, run_specific_topic=False, **kwargs):
         res_dict = { 'topic': docs_dict['title'], 'documents': res }
         visited_pages_dict = {'topic': docs_dict['title'], 'visited_page_set': list(visited_pages_info)}
 
-        checkpoint_results(all_results, visited_pages_list, f'checkpoint_{topic}_results.json')
+        checkpoint_results(res_dict, visited_pages_list, f'checkpoint_{topic}_results.json')
         
         # Return the single result
         all_results.append(res_dict)
