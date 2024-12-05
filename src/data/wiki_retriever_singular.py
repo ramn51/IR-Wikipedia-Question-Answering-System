@@ -10,28 +10,23 @@ from json.decoder import JSONDecodeError
 import json
 
 topics_and_terms = [
-    ("Health", ["Heart disease", "Cancer", "Diabetes", "COVID-19", "Depression", "Anxiety disorders", 
-                "Obesity", "Alzheimer's disease", "Autoimmune disorders", "Infectious diseases", 
-                "Maternal health", "Mental health stigma"]),
-     ("Sports", [
-        "Major sporting events", "Sports analytics", "Player statistics", 
-        "Team performance", "Sports technology", "Cricket", "Sports medicine", 
-        "Esports", "Football", "Olympic Games", "Athlete mental health", 
-        "Sports betting", "Women in sports", "Youth sports development"
-    ])
+    ("Economy", [
+        'GDP growth', 'Economic forecasts', 'Job market trends', 'Income inequality', 'Sustainable economy', 'Economic indicators', 'Trade balance', 'Interest rates', 'Cryptocurrency'
+    ]),
+    ("Travel", ['Travel photography', 'Travel booking platforms', 'Global tourism', 'International flights', 'Tourism industry trends', 'Eco-friendly travel', 'Adventure travel destinations', 'World heritage sites', 'Popular vacation spots', 'Cultural festivals']),
 ]
 
 # Backup Terms for the topic that failed to fetch min of 520 docs
 topic_terms_backup = [
-    ("Health", [
-        "Telemedicine", "Preventive care", "Healthcare technology",
-        "Wellness programs", "Public health initiatives", "Chronic disease management",
-        "Health equity", "Personalized medicine", "Digital health solutions", "Global health challenges"
-    ])
+    ("Health", ["Honeymoon destinations", "Travel deals", "Luxury cruises", 
+ "National parks tourism", "Adventure sports travel", "Budget airlines", 
+ "Travel guides", "Local food tourism", "Historical landmarks", 
+ "Extreme weather travel", "Travel gear and accessories"]
+)
 ]
 
-MAX_DOCS = 5100
-MAX_WORKERS = 10
+MAX_DOCS = 600
+MAX_WORKERS = 20
 TOPICS_BATCH_SIZE = 2 # Dont change this
 MIN_SUMMARY_LEN = 300
 

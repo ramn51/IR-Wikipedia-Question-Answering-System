@@ -1,0 +1,6 @@
+/src/data/docs/*
+/src/data/seperated_out_files/*
+/temp_docs/*
+/src/data/__pycache__/
+*.py[cod]
+*json
