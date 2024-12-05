@@ -1,0 +1,27 @@
+/* General styling for messages */
+.message {
+  max-width: 60%;
+  margin: 10px;
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* Bot messages - Left aligned */
+.bot-message {
+  background-color: #40414f; /* Dark gray background */
+  color: white;
+  align-self: flex-start;
+  border-top-left-radius: 0;
+  border-top-right-radius: 15px;
+}
+
+/* User messages - Right aligned */
+.user-message {
+  background-color: #10a37f; /* Green background */
+  color: white;
+  align-self: flex-end;
+  border-top-right-radius: 0;
+  border-top-left-radius: 15px;
+}
