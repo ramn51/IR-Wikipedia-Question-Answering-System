@@ -31,7 +31,7 @@ const ChatWindow = () => {
           // console.log("Classifier Response:", classifierData);
       
           // Step 2: Use the classifier response in the retriever API call
-          const retrieverResponse = await axios.post("http://34.130.33.83:9999/retriever", {
+          const retrieverResponse = await axios.post("http://34.130.33.83:9999/retriever_docs", {
             query: input,
             topics: ["Technology"], // Example topics
           }, 
@@ -39,7 +39,7 @@ const ChatWindow = () => {
             withCredentials: true, // Include if cookies are used
           }
         );
-          const retrieverData = retrieverResponse.data.response; // Extract the response data
+          const retrieverData = retrieverResponse.data.Response; // Extract the response data
           console.log("Retriever Response:", retrieverData);
       
           // Step 3: Use the retriever response in the summarizer API call
