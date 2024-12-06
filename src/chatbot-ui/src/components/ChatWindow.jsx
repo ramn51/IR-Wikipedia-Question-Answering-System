@@ -34,11 +34,11 @@ const ChatWindow = () => {
           ? "http://34.130.33.83:9999/retriever_docs"
           : "http://127.0.0.1:5000/chitchat";
 
-          // const classifierResponse = await axios.post("http://34.16.74.179:5000/predict", {
-          //   query: input,
-          // });
-          // const classifierData = classifierResponse.data.response; // Extract the response data
-          // console.log("Classifier Response:", classifierData);
+          const classifierResponse = await axios.post("http://34.16.74.179:5005/predict", {
+            query: input,
+          });
+          const classifierData = classifierResponse.data; // Extract the response data
+          console.log("Classifier Response:", classifierData);
           
           
           // Step 2: Use the classifier response in the retriever API call
