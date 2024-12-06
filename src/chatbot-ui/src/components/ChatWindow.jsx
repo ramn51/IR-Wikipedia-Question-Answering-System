@@ -20,82 +20,64 @@ const ChatWindow = () => {
   }
   const handleSendMessage = async () => {
     if (!input.trim()) return;
-
+  
     const userMessage = { text: input, sender: "user" };
     setMessages([...messages, userMessage]);
     setInput("");
-
-
-
+  
+    // Add a placeholder bot message to indicate processing
+    const loadingMessage = { text: "Processing your request...", sender: "bot" };
+    setMessages((prevMessages) => [...prevMessages, loadingMessage]);
+  
     try {
-      // Decide the API endpoint based on the mode
-      const endpoint =
-        mode === "Retrieval"
-          ? "http://34.130.33.83:9999/retriever_docs"
-          : "http://127.0.0.1:5000/chitchat";
-
-          const classifierResponse = await axios.post("http://34.16.74.179:5005/predict", {
-            query: input,
-          });
-          const classifierData = classifierResponse.data; // Extract the response data
-          console.log("Classifier Response:", classifierData);
-          
-          // Step 2: Use the classifier response in the retriever API call
-          const retrieverResponse = await axios.post("http://34.130.33.83:9999/retriever_docs", {
-            ...classifierData // Example topics
-          }, 
-          {
-            withCredentials: true, // Include if cookies are used
-          }
-        );
-
-          const payload = {
-            Response: retrieverResponse.data.Response
-        };
-
-        console.log("Retriever Response:", retrieverResponse.data.Response);
-        
-        // Validate payload
-        if (!isValidJson(payload)) {
-          console.error("Invalid JSON payload");
-          
-        } else {
-          console.log("Payload to be sent:", payload);
-
-          // Proceed with Axios request
-          const summarizerResponse = await axios.post(
-            "http://34.16.74.179:5000/summarize",
-            payload,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              }
-            }
-          );
-          console.log("Response:", summarizerResponse);
+      // Classifier API call
+      const classifierResponse = await axios.post("http://34.16.74.179:5005/predict", {
+        query: input,
+      });
+      const classifierData = classifierResponse.data;
+      console.log("Classifier Response:", classifierData);
+  
+      // Retriever API call
+      const retrieverResponse = await axios.post(
+        "http://34.130.33.83:9999/retriever_docs",
+        { ...classifierData },
+        { withCredentials: true }
+      );
+      const retrieverData = retrieverResponse.data.Response;
+      console.log("Retriever Response:", retrieverData);
+  
+      // Summarizer API call
+      const summarizerResponse = await axios.post(
+        "http://34.16.74.179:5000/summarize",
+        { Response: retrieverData },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      
-            
-            
-        //     // Pass the retriever response as input
-        //   }, {
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   withCredentials: true,
-        // });
-        //   const summarizerData = summarizerResponse.data.response; // Extract the response data
-        //   console.log("Summarizer Response:", summarizerData);
-
-      const botMessage = { text: "summarizerResponse.data.response", sender: "bot" };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      );
+      console.log("Summarizer Response:", summarizerResponse);
+      const summarizerData = summarizerResponse.data;
+      console.log("Summarizer Response:", summarizerData);
+  
+      // Update the final bot response
+      const botMessage = { text: summarizerData, sender: "bot" };
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages];
+        updatedMessages.pop(); // Remove the loading message
+        return [...updatedMessages, botMessage];
+      });
     } catch (error) {
       console.error("Error:", error);
-      const errorMessage = {
-        text: "Something went wrong. Please try again.",
-        sender: "bot",
-      };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      // Replace the loading message with an error message
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages];
+        updatedMessages.pop(); // Remove the loading message
+        return [
+          ...updatedMessages,
+          { text: "Something went wrong. Please try again.", sender: "bot" },
+        ];
+      });
     }
   };
 
