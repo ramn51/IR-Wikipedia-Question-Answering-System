@@ -92,9 +92,9 @@ const ChatWindow = () => {
 
           // Save all the results onto a json file for analytics
           const allResponses = {
-            classifierResponse: classifierData,
-            retrieverResponse: retrieverData,
-            summarizerResponse: summarizerResponse.data,
+            'classifier': classifierData,
+            'retriever': retrieverData,
+            'summarizer': summarizerResponse.data,
           };
 
           logResponses(allResponses);
