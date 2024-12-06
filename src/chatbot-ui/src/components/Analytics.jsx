@@ -88,12 +88,14 @@ const Analytics = () => {
 
     // Extracting the time values from classifier, retriever, and summarizer
     const recent_item = data.results[data.results.length - 1]
+    console.log("Recent Item: ", recent_item)
     const times = {
       classifier: recent_item.classifier.time,
       retriever: recent_item.retriever.time_taken,
       summarizer: recent_item.summarizer.time,
     };
-  
+    
+    console.log("Times: ", times)
     return {
       labels: ['Classifier', 'Retriever', 'Summarizer'],  // Use keys as labels for each category
       datasets: [

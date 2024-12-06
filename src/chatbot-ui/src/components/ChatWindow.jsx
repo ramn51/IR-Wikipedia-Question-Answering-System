@@ -122,8 +122,8 @@ const ChatWindow = () => {
         { withCredentials: true }
       );
       const retrieverData = retrieverResponse.data.Response;
-      console.log("Retriever Response:", retrieverData);
-  
+      const retrieverTimeTaken = retrieverResponse.data.time_taken
+      console.log("Retriever Response:", retrieverResponse.data);
       // Summarizer API call
       const summarizerResponse = await axios.post(
         "http://34.16.74.179:5000/summarize",
@@ -143,7 +143,7 @@ const ChatWindow = () => {
       // Log responses
       const allResponses = {
         classifier: classifierData,
-        retriever: { Response: retrieverData },
+        retriever: {"Response": retrieverData, "time_taken": retrieverTimeTaken},
         summarizer: summarizerResponse.data,
       };
       logResponses(allResponses);
