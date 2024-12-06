@@ -22,6 +22,26 @@ const ChatWindow = () => {
   const [activeTab, setActiveTab] = useState("chatbot"); // Current tab
   const [mode, setMode] = useState("Retrieval"); // Toggle mode state
 
+  const [selectedTopics, setSelectedTopics] = useState([]); // Selected topics state
+
+  // List of topics for the checkboxes
+  const topicsList = [
+    "Economy", "Health", "Technology", "Science", "Politics", "Sports",
+    "Entertainment", "Travel", "Business", "Education"
+  ];
+
+  const handleTopicChange = (topic) => {
+    setSelectedTopics((prevSelectedTopics) => {
+      if (prevSelectedTopics.includes(topic)) {
+        // Remove the topic from the selected topics array
+        return prevSelectedTopics.filter((t) => t !== topic);
+      } else {
+        // Add the topic to the selected topics array
+        return [...prevSelectedTopics, topic];
+      }
+    });
+  };
+
   function isValidJson(data) {
     try {
       JSON.stringify(data); // Attempt to serialize the data
@@ -40,10 +60,54 @@ const ChatWindow = () => {
     // Add a placeholder bot message to indicate processing
     const loadingMessage = { text: "Processing your request...", sender: "bot" };
     setMessages((prevMessages) => [...prevMessages, loadingMessage]);
-  
+    
     try {
       // Classifier API call
       const userInput = userMessage.text;
+      if (selectedTopics.length > 0) {
+        // Dont do classifier call if topics are selected
+        console.log("Selected Topics:", selectedTopics);
+        const classifierData = { topics: selectedTopics, probability_values: Array(selectedTopics.length).fill(1), time: 0, query: userInput };
+
+        // Retriever API call
+        const retrieverResponse = await axios.post(
+          "http://34.130.33.83:9999/retriever_docs",
+          { ...classifierData },
+          { withCredentials: true }
+        );
+        const retrieverData = retrieverResponse.data.Response;
+        console.log("Retriever Response:", retrieverData);
+
+        // Summarizer API call
+        const summarizerResponse = await axios.post(
+          "http://34.16.74.179:5000/summarize",
+          { Response: retrieverData },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Summarizer Response:", summarizerResponse);
+        const summarizerData = summarizerResponse.data;
+
+        // Update the final bot response
+        const botMessage = { text: `Summary: ${summarizerData.summary}\n`, sender: "bot" };
+
+        // Save all the results onto a json file for analytics
+        const allResponses = {
+          'classifier': classifierData,
+          'retriever': retrieverData,
+          'summarizer': summarizerResponse.data,
+        };
+
+        logResponses(allResponses);
+        setMessages((prevMessages) => {
+          const updatedMessages = [...prevMessages];
+          updatedMessages.pop();
+          return [...updatedMessages, botMessage];
+        });
+      }
       const classifierResponse = await axios.post("http://34.16.74.179:5005/predict", {
         query: userInput,
       });
@@ -177,6 +241,22 @@ const ChatWindow = () => {
                 <Message key={index} text={msg.text} sender={msg.sender} />
               ))}
             </div>
+            
+             {/* Checkbox for topics */}
+             <div className="topics-checkboxes">
+              {topicsList.map((topic) => (
+                <label key={topic}>
+                  <input
+                    type="checkbox"
+                    checked={selectedTopics.includes(topic)}
+                    onChange={() => handleTopicChange(topic)}
+                  />
+                  {topic}
+                </label>
+              ))}
+            </div>
+            
+
             <div className="input-area">
               <input
                 type="text"
