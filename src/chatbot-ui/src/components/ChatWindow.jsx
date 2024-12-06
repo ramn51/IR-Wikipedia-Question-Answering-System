@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import Message from "./Message";
 import "./ChatWindow.css";
+import Analytics from "./Analytics";
 
 const logResponses = async (responses) => {
   try {
@@ -53,6 +54,7 @@ const ChatWindow = () => {
         // const chitchatResponse = await axios.post("http://localhost:5000/chat", {
         //   query: userInput,
         // });
+        // Replace this line with the above line if the chat_app.py server is running without issues
         const chitchatResponse = { answer: "This is a standard response" };
         const botMessage = { text: `ChitChat: ${chitchatResponse.answer}\n`, sender: "bot" };
         setMessages((prevMessages) => {
@@ -187,7 +189,7 @@ const ChatWindow = () => {
             </div>
           </>
         ) : (
-          <div className="analytics">Analytics content goes here!</div>
+          <Analytics />
         )}
       </div>
     </div>
