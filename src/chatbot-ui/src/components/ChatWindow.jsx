@@ -10,12 +10,22 @@ const ChatWindow = () => {
   const [activeTab, setActiveTab] = useState("chatbot"); // Current tab
   const [mode, setMode] = useState("Retrieval"); // Toggle mode state
 
+  function isValidJson(data) {
+    try {
+      JSON.stringify(data); // Attempt to serialize the data
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
     const userMessage = { text: input, sender: "user" };
     setMessages([...messages, userMessage]);
     setInput("");
+
+
 
     try {
       // Decide the API endpoint based on the mode
@@ -29,7 +39,8 @@ const ChatWindow = () => {
           // });
           // const classifierData = classifierResponse.data.response; // Extract the response data
           // console.log("Classifier Response:", classifierData);
-      
+          
+          
           // Step 2: Use the classifier response in the retriever API call
           const retrieverResponse = await axios.post("http://34.130.33.83:9999/retriever_docs", {
             query: input,
@@ -39,17 +50,46 @@ const ChatWindow = () => {
             withCredentials: true, // Include if cookies are used
           }
         );
-          const retrieverData = retrieverResponse.data.Response; // Extract the response data
-          console.log("Retriever Response:", retrieverData);
-      
-          // Step 3: Use the retriever response in the summarizer API call
-          const summarizerResponse = await axios.post("http://34.16.74.179:5005/summarize", {
-            summaries: [retrieverData], // Pass the retriever response as input
-          });
-          const summarizerData = summarizerResponse.data.response; // Extract the response data
-          console.log("Summarizer Response:", summarizerData);
+          const retrieverData = retrieverResponse.data; // Extract the response data
+          // console.log("Retriever Response:", JSON.stringify(retrieverData));
 
-      const botMessage = { text: summarizerData.data.response, sender: "bot" };
+          const payload = {
+            Response: retrieverResponse.data.Response
+        };
+        
+        // Validate payload
+        if (!isValidJson(payload)) {
+          console.error("Invalid JSON payload");
+          
+        } else {
+          console.log("Payload to be sent:", payload);
+
+          // Proceed with Axios request
+          const summarizerResponse = await axios.post(
+            "http://34.16.74.179:5000/summarize",
+            payload,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              }
+            }
+          );
+          console.log("Response:", summarizerResponse);
+        }
+      
+            
+            
+        //     // Pass the retriever response as input
+        //   }, {
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   withCredentials: true,
+        // });
+        //   const summarizerData = summarizerResponse.data.response; // Extract the response data
+        //   console.log("Summarizer Response:", summarizerData);
+
+      const botMessage = { text: "summarizerResponse.data.response", sender: "bot" };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     } catch (error) {
       console.error("Error:", error);
