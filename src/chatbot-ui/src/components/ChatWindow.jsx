@@ -40,22 +40,20 @@ const ChatWindow = () => {
           const classifierData = classifierResponse.data; // Extract the response data
           console.log("Classifier Response:", classifierData);
           
-          
           // Step 2: Use the classifier response in the retriever API call
           const retrieverResponse = await axios.post("http://34.130.33.83:9999/retriever_docs", {
-            query: input,
-            topics: ["Technology"], // Example topics
+            ...classifierData // Example topics
           }, 
           {
             withCredentials: true, // Include if cookies are used
           }
         );
-          const retrieverData = retrieverResponse.data; // Extract the response data
-          // console.log("Retriever Response:", JSON.stringify(retrieverData));
 
           const payload = {
             Response: retrieverResponse.data.Response
         };
+
+        console.log("Retriever Response:", retrieverResponse.data.Response);
         
         // Validate payload
         if (!isValidJson(payload)) {
