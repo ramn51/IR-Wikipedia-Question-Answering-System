@@ -21,14 +21,35 @@ const ChatWindow = () => {
       // Decide the API endpoint based on the mode
       const endpoint =
         mode === "Retrieval"
-          ? "http://127.0.0.1:5000/retrieval"
+          ? "http://34.130.33.83:9999/retriever_docs"
           : "http://127.0.0.1:5000/chitchat";
 
-      const response = await axios.post(endpoint, {
-        message: input,
-      });
+          // const classifierResponse = await axios.post("http://34.16.74.179:5000/predict", {
+          //   query: input,
+          // });
+          // const classifierData = classifierResponse.data.response; // Extract the response data
+          // console.log("Classifier Response:", classifierData);
+      
+          // Step 2: Use the classifier response in the retriever API call
+          const retrieverResponse = await axios.post("http://34.130.33.83:9999/retriever", {
+            query: input,
+            topics: ["Technology"], // Example topics
+          }, 
+          {
+            withCredentials: true, // Include if cookies are used
+          }
+        );
+          const retrieverData = retrieverResponse.data.response; // Extract the response data
+          console.log("Retriever Response:", retrieverData);
+      
+          // Step 3: Use the retriever response in the summarizer API call
+          const summarizerResponse = await axios.post("http://34.16.74.179:5005/summarize", {
+            summaries: [retrieverData], // Pass the retriever response as input
+          });
+          const summarizerData = summarizerResponse.data.response; // Extract the response data
+          console.log("Summarizer Response:", summarizerData);
 
-      const botMessage = { text: response.data.response, sender: "bot" };
+      const botMessage = { text: summarizerData.data.response, sender: "bot" };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     } catch (error) {
       console.error("Error:", error);
