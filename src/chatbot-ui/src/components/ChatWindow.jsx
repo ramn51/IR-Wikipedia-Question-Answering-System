@@ -60,65 +60,51 @@ const ChatWindow = () => {
     // Add a placeholder bot message to indicate processing
     const loadingMessage = { text: "Processing your request...", sender: "bot" };
     setMessages((prevMessages) => [...prevMessages, loadingMessage]);
-    
+  
     try {
-      // Classifier API call
       const userInput = userMessage.text;
-      if (selectedTopics.length > 0) {
-        // Dont do classifier call if topics are selected
-        console.log("Selected Topics:", selectedTopics);
-        const classifierData = { topics: selectedTopics, probability_values: Array(selectedTopics.length).fill(1), time: 0, query: userInput };
-
-        // Retriever API call
-        const retrieverResponse = await axios.post(
-          "http://34.130.33.83:9999/retriever_docs",
-          { ...classifierData },
-          { withCredentials: true }
-        );
-        const retrieverData = retrieverResponse.data.Response;
-        console.log("Retriever Response:", retrieverData);
-
-        // Summarizer API call
-        const summarizerResponse = await axios.post(
-          "http://34.16.74.179:5000/summarize",
-          { Response: retrieverData },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log("Summarizer Response:", summarizerResponse);
-        const summarizerData = summarizerResponse.data;
-
-        // Update the final bot response
-        const botMessage = { text: `Summary: ${summarizerData.summary}\n`, sender: "bot" };
-
-        // Save all the results onto a json file for analytics
-        const allResponses = {
-          'classifier': classifierData,
-          'retriever': {"Response": retrieverData},
-          'summarizer': summarizerResponse.data,
+  
+      if (mode === "ChitChat") {
+        // Directly call ChitChat API
+        console.log("ChitChat Mode Active");
+        const chitchatResponse = await axios.post("http://localhost:5000/chat", {
+          message: userInput,
+        });
+        const botMessage = {
+          text: `ChitChat: ${chitchatResponse.data?.response || "No response received."}\n`,
+          sender: "bot",
         };
-
-        logResponses(allResponses);
         setMessages((prevMessages) => {
           const updatedMessages = [...prevMessages];
-          updatedMessages.pop();
+          updatedMessages.pop(); // Remove loading message
           return [...updatedMessages, botMessage];
         });
+        return; // Exit function since ChitChat is handled
       }
-      const classifierResponse = await axios.post("http://34.16.74.179:5005/predict", {
-        query: userInput,
-      });
-      const classifierData = classifierResponse.data;
-      console.log("Classifier Response:", classifierData.topics[0]);
-
-      if( classifierData.topics[0] === 'Chitchat'){
-        // const chitchatResponse = await axios.post("http://localhost:5000/chat", {
-        //   query: userInput,
-        // });
-        // Replace this line with the above line if the chat_app.py server is running without issues
+  
+      // Retrieval Mode
+      console.log("Retriever Mode Active");
+  
+      // If topics are selected, skip classifier call
+      let classifierData;
+      if (selectedTopics.length > 0) {
+        console.log("Selected Topics:", selectedTopics);
+        classifierData = {
+          topics: selectedTopics,
+          probability_values: Array(selectedTopics.length).fill(1),
+          time: 0,
+          query: userInput,
+        };
+      } else {
+        const classifierResponse = await axios.post("http://34.16.74.179:5005/predict", {
+          query: userInput,
+        });
+        classifierData = classifierResponse.data;
+        console.log("Classifier Response:", classifierData?.topics?.[0]);
+      }
+  
+      if (classifierData?.topics?.[0] === "Chitchat") {
+        // Call ChitChat API
         const chitchatResponse = { answer: "This is a standard response" };
         const botMessage = { text: `ChitChat: ${chitchatResponse.answer}\n`, sender: "bot" };
         setMessages((prevMessages) => {
@@ -126,55 +112,52 @@ const ChatWindow = () => {
           updatedMessages.pop();
           return [...updatedMessages, botMessage];
         });
-      }
-
-      else {
-          // Retriever API call
-          const retrieverResponse = await axios.post(
-            "http://34.130.33.83:9999/retriever_docs",
-            { ...classifierData },
-            { withCredentials: true }
-          );
-          const retrieverData = retrieverResponse.data.Response;
-          console.log("Retriever Response:", retrieverData);
-
-          // Summarizer API call
-          const summarizerResponse = await axios.post(
-            "http://34.16.74.179:5000/summarize",
-            { Response: retrieverData },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("Summarizer Response:", summarizerResponse);
-          const summarizerData = summarizerResponse.data;
-
-          // Update the final bot response
-          const botMessage = { text: `Summary: ${summarizerData.summary}\n`, sender: "bot" };
-
-          // Save all the results onto a json file for analytics
-          const allResponses = {
-            'classifier': classifierData,
-            'retriever': {"Response": retrieverData},
-            'summarizer': summarizerResponse.data,
-          };
-
-          logResponses(allResponses);
-          setMessages((prevMessages) => {
-            const updatedMessages = [...prevMessages];
-            updatedMessages.pop();
-            return [...updatedMessages, botMessage];
-          });
+        return;
       }
   
-      
+      // Retriever API call
+      const retrieverResponse = await axios.post(
+        "http://34.130.33.83:9999/retriever_docs",
+        { ...classifierData },
+        { withCredentials: true }
+      );
+      const retrieverData = retrieverResponse.data.Response;
+      console.log("Retriever Response:", retrieverData);
+  
+      // Summarizer API call
+      const summarizerResponse = await axios.post(
+        "http://34.16.74.179:5000/summarize",
+        { Response: retrieverData },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Summarizer Response:", summarizerResponse);
+      const summarizerData = summarizerResponse.data;
+  
+      // Update the final bot response
+      const botMessage = { text: `Summary: ${summarizerData?.summary || "No summary available."}\n`, sender: "bot" };
+  
+      // Log responses
+      const allResponses = {
+        classifier: classifierData,
+        retriever: { Response: retrieverData },
+        summarizer: summarizerResponse.data,
+      };
+      logResponses(allResponses);
+  
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages];
+        updatedMessages.pop(); // Remove loading message
+        return [...updatedMessages, botMessage];
+      });
     } catch (error) {
       console.error("Error:", error);
       setMessages((prevMessages) => {
         const updatedMessages = [...prevMessages];
-        updatedMessages.pop();
+        updatedMessages.pop(); // Remove loading message
         return [
           ...updatedMessages,
           { text: "Something went wrong. Please try again.", sender: "bot" },
