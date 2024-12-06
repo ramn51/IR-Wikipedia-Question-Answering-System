@@ -18,7 +18,7 @@ const Analytics = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:5000/getLog'); // Replace with actual data source
-        // console.log('Analytics data:', response.data);
+        console.log('Analytics data:', response.data);
         setData(JSON.parse(response.data));
       } catch (error) {
         console.error('Error fetching analytics data:', error);
@@ -39,6 +39,7 @@ const Analytics = () => {
   
     // Determine the data range (all results or just the most recent one)
     const resultsToDisplay = showRecentOnly ? [data.results[data.results.length - 1]] : data.results;
+    console.log("Results to display: ", resultsToDisplay)
   
     // Loop over the selected results to collect times for each attribute
     resultsToDisplay.forEach((result, index) => {

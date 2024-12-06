@@ -7,7 +7,7 @@ import Analytics from "./Analytics";
 const logResponses = async (responses) => {
   try {
     const response = await axios.post("http://localhost:5000/saveLog", {
-      data: responses, // Your log data
+      ...responses, // Your log data
     });
     console.log("Log data saved:", response.data);
   } catch (error) {
@@ -97,7 +97,7 @@ const ChatWindow = () => {
         // Save all the results onto a json file for analytics
         const allResponses = {
           'classifier': classifierData,
-          'retriever': retrieverData,
+          'retriever': {"Response": retrieverData},
           'summarizer': summarizerResponse.data,
         };
 
@@ -157,7 +157,7 @@ const ChatWindow = () => {
           // Save all the results onto a json file for analytics
           const allResponses = {
             'classifier': classifierData,
-            'retriever': retrieverData,
+            'retriever': {"Response": retrieverData},
             'summarizer': summarizerResponse.data,
           };
 
