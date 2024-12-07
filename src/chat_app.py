@@ -19,7 +19,7 @@ chat_history_ids = None
 def chat():
     global chat_history_ids
     user_input = request.json.get("message", "")
-    
+
     if not isinstance(user_input, str) or not user_input.strip():
         return jsonify({"response": "Invalid input provided!"}), 400
 
@@ -45,7 +45,7 @@ def chat():
     )
 
     chat_history_ids = chat_history_ids[:, -1000:]
-    
+
     bot_response = tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
     return jsonify({"response": bot_response})
 
@@ -57,7 +57,7 @@ def save_log():
     # Ensure the "logs" folder exists
     if not os.path.exists(os.path.dirname(log_file_path)):
         os.makedirs(os.path.dirname(log_file_path))
-    
+
     try:
         # Extract the JSON data from the request
         log_data = request.get_json()
@@ -67,7 +67,7 @@ def save_log():
             with open(log_file_path, 'r') as log_file:
                 # Load existing data
                 existing_data = json.load(log_file)
-                
+
                 # If 'results' exists, append new data, else create the 'results' array
                 if "results" in existing_data:
                     existing_data["results"].append(log_data)
@@ -85,11 +85,11 @@ def save_log():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
 @app.route('/getLog', methods=['GET'])
 def get_log():
     log_file_path = './chatbot-ui/src/analytics_data/analytics_data.json'  # Update this with your actual log file path
-    
+
     # Check if the file exists
     if not os.path.exists(log_file_path):
         abort(404, description="Log file not found")
@@ -107,4 +107,4 @@ def get_log():
         abort(500, description=f"Error reading log file: {str(e)}")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, host='0.0.0.0')
