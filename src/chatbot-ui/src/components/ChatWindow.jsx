@@ -6,7 +6,7 @@ import Analytics from "./Analytics";
 
 const logResponses = async (responses) => {
   try {
-    const response = await axios.post("http://localhost:5000/saveLog", {
+    const response = await axios.post("http://34.68.123.1:5000/saveLog", {
       ...responses, // Your log data
     });
     console.log("Log data saved:", response.data);
@@ -67,7 +67,7 @@ const ChatWindow = () => {
       if (mode === "ChitChat") {
         // Directly call ChitChat API
         console.log("ChitChat Mode Active");
-        const chitchatResponse = await axios.post("http://localhost:5000/chat", {
+        const chitchatResponse = await axios.post("http://34.68.123.1:5000/chat", {
           message: userInput,
         });
         const botMessage = {

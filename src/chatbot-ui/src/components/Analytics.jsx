@@ -17,7 +17,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/getLog'); // Replace with actual data source
+        const response = await axios.get('http://34.68.123.1:5000/getLog'); // Replace with actual data source
         console.log('Analytics data:', response.data);
         setData(JSON.parse(response.data));
       } catch (error) {
